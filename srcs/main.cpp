@@ -1,5 +1,5 @@
 #include "NPuzzle.hpp"
-#include "solveWithAStar.hpp"
+#include "AStarSolver.hpp"
 #include <iostream>
 #include <string>
 
@@ -33,7 +33,9 @@ int main(int argc, char const *argv[])
         return (std::cout << "\nThis puzzle is unsolvable (odd inversion count).\n", 0);
     if (puzzle.isGoal())
         return (std::cout << "\nPuzzle is already solved!\n", 0);
-    auto solution = solveWithAStar(puzzle);
+    AStarSolver s;
+    s.solveWithAStar(puzzle);
+    auto solution = s.getActionsPath();
     if (solution.empty())
         std::cout << "\nNo solution found (this should never happen for a solvable puzzle).\n";
     else

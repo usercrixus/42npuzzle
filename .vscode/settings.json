@@ -67,7 +67,8 @@
         "format": "cpp",
         "__nullptr": "cpp",
         "unordered_set": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "__node_handle": "cpp"
     }
     
 }
