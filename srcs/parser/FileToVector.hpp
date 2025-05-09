@@ -37,17 +37,14 @@ bool FileToVector<T>::parse(std::string path)
         return (std::cerr << "Error: Could not open file " << path << "\n", false);
     std::string line;
     while (std::getline(input, line)) {
-        line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char ch) {
-            return !std::isspace(ch);
-        }));
-        if (!line.empty() && line[0] != '#')
-		{
-			std::istringstream iss(line);
-			T token;
-			while (iss >> token) {
-				this->tokens.push_back(token);
-			}
-        }
+		std::size_t hashPos = line.find('#');
+        if (hashPos != std::string::npos)
+            line.erase(hashPos);
+		std::istringstream iss(line);
+		T token;
+		while (iss >> token) {
+			this->tokens.push_back(token);
+		}
     }
     input.close();
     return true;

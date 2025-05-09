@@ -14,8 +14,8 @@ private:
 	struct ANode;
 	struct PQItem;
 	std::vector<ANode> allNodes;
-	std::priority_queue<PQItem> open;
-	std::unordered_map<std::string, int> stepSoFar;
+	std::priority_queue<PQItem> openNodes;
+	std::unordered_map<std::string, int> stepSoFarMap;
 	int goalIdx = -1;
 public:
 	AStarSolver(/* args */);
@@ -39,8 +39,6 @@ struct AStarSolver::PQItem
 struct AStarSolver::ANode
 {
 	NPuzzle board;
-	int g;         // cost so far
-	int f;         // g + h
 	int parentIdx; // index in allNodes
 	NPuzzle::Move moveFromParent;
 };
