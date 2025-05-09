@@ -3,6 +3,10 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <iostream>
+#include <climits>
+#include <random>
+#include <chrono>
 #include "parser/FileToVector.hpp"
 #include "geometry/point.hpp"
 
@@ -19,6 +23,7 @@ public:
     ~NPuzzle();
 
     bool parse(std::string path);
+    bool parse();
     void print() const;
     Point<int> getZero() const;
     std::vector<Move> getMove(Point<int> zero) const;

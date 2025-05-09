@@ -1,6 +1,4 @@
 #include "NPuzzle.hpp"
-#include <iostream>
-#include <climits>
 
 NPuzzle::NPuzzle() : size(0) {}
 NPuzzle::~NPuzzle() {}
@@ -23,6 +21,21 @@ bool NPuzzle::parse(std::string path)
     return true;
 }
 
+bool NPuzzle::parse()
+{
+    size = 4;
+    std::vector<int> buffer(size * size);
+    std::iota(buffer.begin(), buffer.end(), 0);
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::shuffle(buffer.begin(), buffer.end(), rng);
+    puzzle.assign(size, std::vector<int>(size));
+    for (int i = 0; i < size; ++i)
+        for (int j = 0; j < size; ++j)
+            puzzle[i][j] = buffer[i * size + j];
+    return true;
+}
+
 void NPuzzle::print() const
 {
     for (auto const &row : puzzle)
@@ -37,7 +50,7 @@ void NPuzzle::print() const
 std::string NPuzzle::flatten() const
 {
     std::ostringstream oss;
-    for (const auto& row : puzzle)
+    for (const auto &row : puzzle)
         for (int v : row)
             oss << v << ",";
     return oss.str();
@@ -47,22 +60,27 @@ bool NPuzzle::isSolvable() const
 {
     std::vector<int> flat;
     int blankRow = -1;
-    for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
+    for (int i = 0; i < size; ++i)
+    {
+        for (int j = 0; j < size; ++j)
+        {
             int v = puzzle[i][j];
-            if (v == 0) blankRow = i;
-            else flat.push_back(v);
+            if (v == 0)
+                blankRow = i;
+            else
+                flat.push_back(v);
         }
     }
     int inv = 0;
     for (size_t a = 0; a < flat.size(); ++a)
-        for (size_t b = a+1; b < flat.size(); ++b)
-            if (flat[a] > flat[b]) ++inv;
-    if (size % 2 == 1) return (inv % 2) == 0;
+        for (size_t b = a + 1; b < flat.size(); ++b)
+            if (flat[a] > flat[b])
+                ++inv;
+    if (size % 2 == 1)
+        return (inv % 2) == 0;
     int rowFromBottom = size - blankRow;
     return ((inv + rowFromBottom) % 2) == 1;
 }
-
 
 Point<int> NPuzzle::getZero() const
 {
