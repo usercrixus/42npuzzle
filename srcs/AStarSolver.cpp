@@ -3,7 +3,6 @@
 
 AStarSolver::AStarSolver()
 {
-	allNodes.reserve(20000);
 }
 
 AStarSolver::~AStarSolver()
@@ -18,6 +17,36 @@ void AStarSolver::initializeSolver(const NPuzzle &puzzle)
 	stepSoFarMap[puzzle.flatten()] = 0;
 }
 
+bool AStarSolver::isSolved(int bestNodeId)
+{
+	if (allNodes[bestNodeId].board.isGoal())
+	{
+		goalIdx = bestNodeId;
+		return (true);
+	}
+	return (false);
+}
+
+void AStarSolver::pushSolverNodes(int bestNodeId)
+{
+	const NPuzzle board = allNodes[bestNodeId].board;
+	int stepSoFar = stepSoFarMap.at(board.flatten());
+	std::vector<NPuzzle::Move> moves = board.getMove(board.getZero());
+	for (auto mv : moves)
+	{
+		NPuzzle next = board.applyMove(mv);
+		std::string key = next.flatten();
+		if (stepSoFarMap.find(key) == stepSoFarMap.end())
+		{
+			int totalEstimation = stepSoFar + 1 + next.estimate(next);
+			int nextIdx = allNodes.size();
+			allNodes.push_back({next, bestNodeId, mv});
+			stepSoFarMap[key] = stepSoFar + 1;;
+			openNodes.push({nextIdx, totalEstimation});
+		}
+	}
+}
+
 bool AStarSolver::solveWithAStar(const NPuzzle &puzzle)
 {
 	initializeSolver(puzzle);
@@ -25,30 +54,10 @@ bool AStarSolver::solveWithAStar(const NPuzzle &puzzle)
 	{
 		int bestNodeId = openNodes.top().id;
 		openNodes.pop();
-		AStarSolver::ANode &bestNode = allNodes[bestNodeId];
-		if (bestNode.board.isGoal())
-		{
-			goalIdx = bestNodeId;
+		if (isSolved(bestNodeId))
 			return (true);
-		}
 		else
-		{
-			int stepSoFar = stepSoFarMap[bestNode.board.flatten()];
-			for (NPuzzle::Move mv : bestNode.board.getMove(bestNode.board.getZero()))
-			{
-				NPuzzle next = bestNode.board.applyMove(mv);
-				std::string nextKey = next.flatten();
-				std::unordered_map<std::string, int>::iterator it = stepSoFarMap.find(nextKey);
-				if (it == stepSoFarMap.end())
-				{
-					int totalEstimation = stepSoFar + 1 + next.estimate(next);
-					int nextIdx = allNodes.size();
-					allNodes.push_back({next, bestNodeId, mv});
-					stepSoFarMap[nextKey] = stepSoFar + 1;
-					openNodes.push({nextIdx, totalEstimation});
-				}
-			}
-		}
+			pushSolverNodes(bestNodeId);
 	}
 	return (false);
 }

@@ -1,4 +1,3 @@
-// solveWithAStar.hpp
 #pragma once
 
 #include "NPuzzle.hpp"
@@ -22,8 +21,10 @@ public:
 	~AStarSolver();
 
     void initializeSolver(const NPuzzle &puzzle);
-    bool solveWithAStar(const NPuzzle& start);
-	std::vector<NPuzzle::Move> getActionsPath();
+    bool isSolved(int bestNodeId);
+    void pushSolverNodes(int bestNodeId);
+    bool solveWithAStar(const NPuzzle &start);
+    std::vector<NPuzzle::Move> getActionsPath();
 };
 
 struct AStarSolver::PQItem

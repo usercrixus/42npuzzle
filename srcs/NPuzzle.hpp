@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include <sstream>           // for flatten()
+#include <sstream>
 #include "parser/FileToVector.hpp"
 #include "geometry/point.hpp"
 
