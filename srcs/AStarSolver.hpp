@@ -16,6 +16,8 @@ private:
 	std::priority_queue<PQItem> openNodes;
 	std::unordered_map<std::string, int> stepSoFarMap;
 	int goalIdx = -1;
+	std::size_t numberOfStateSelected = 0;
+	std::size_t maxNumberOfStateInMemory = 0;
 public:
 	AStarSolver(/* args */);
 	~AStarSolver();
@@ -25,6 +27,8 @@ public:
     void pushSolverNodes(int bestNodeId);
     bool solveWithAStar(const NPuzzle &start);
     std::vector<NPuzzle::Move> getActionsPath();
+	int getNumberOfStateSelected();
+	int getMaxnumberOfStateInMemory();
 };
 
 struct AStarSolver::PQItem

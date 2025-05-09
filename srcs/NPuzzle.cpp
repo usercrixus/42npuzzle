@@ -31,6 +31,7 @@ void NPuzzle::print() const
             std::cout << v << " ";
         std::cout << "\n";
     }
+    std::cout << "\n";
 }
 
 std::string NPuzzle::flatten() const

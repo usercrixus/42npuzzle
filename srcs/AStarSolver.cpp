@@ -38,6 +38,8 @@ void AStarSolver::pushSolverNodes(int bestNodeId)
 		std::string key = next.flatten();
 		if (stepSoFarMap.find(key) == stepSoFarMap.end())
 		{
+			numberOfStateSelected++;
+			maxNumberOfStateInMemory = maxNumberOfStateInMemory > openNodes.size() ? maxNumberOfStateInMemory : openNodes.size();
 			int totalEstimation = stepSoFar + 1 + next.estimate(next);
 			int nextIdx = allNodes.size();
 			allNodes.push_back({next, bestNodeId, mv});
@@ -74,4 +76,14 @@ std::vector<NPuzzle::Move> AStarSolver::getActionsPath()
 		std::reverse(path.begin(), path.end());
 	}
 	return path;
+}
+
+int AStarSolver::getNumberOfStateSelected()
+{
+    return (numberOfStateSelected);
+}
+
+int AStarSolver::getMaxnumberOfStateInMemory()
+{
+    return (maxNumberOfStateInMemory);
 }
