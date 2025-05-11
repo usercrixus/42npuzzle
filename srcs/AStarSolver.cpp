@@ -11,7 +11,8 @@ AStarSolver::~AStarSolver()
 
 void AStarSolver::initializeSolver(const NPuzzle &puzzle)
 {
-	int initialEstimation = puzzle.estimateManhattan(puzzle);
+	auto hFunc = puzzle.getHeuristicFunction();
+	int initialEstimation = (puzzle.*hFunc)(puzzle);
 	allNodes.push_back({puzzle, -1, NPuzzle::LEFT});
 	openNodes.push({0, initialEstimation});
 	stepSoFarMap[puzzle.flatten()] = 0;
@@ -40,7 +41,8 @@ void AStarSolver::pushSolverNodes(int bestNodeId)
 		{
 			numberOfStateSelected++;
 			maxNumberOfStateInMemory = maxNumberOfStateInMemory > openNodes.size() ? maxNumberOfStateInMemory : openNodes.size();
-			int totalEstimation = stepSoFar + 1 + next.estimateManhattan(next);
+			auto hFunc = next.getHeuristicFunction();
+			int totalEstimation = stepSoFar + 1 + (next.*hFunc)(next);
 			int nextIdx = allNodes.size();
 			allNodes.push_back({next, bestNodeId, mv});
 			stepSoFarMap[key] = stepSoFar + 1;;
