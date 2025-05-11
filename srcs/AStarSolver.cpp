@@ -32,24 +32,28 @@ void AStarSolver::pushSolverNodes(int bestNodeId)
 {
 	const NPuzzle board = allNodes[bestNodeId].board;
 	int stepSoFar = stepSoFarMap.at(board.flatten());
-	std::vector<NPuzzle::Move> moves = board.getMove(board.getZero());
-	for (auto mv : moves)
+	for (auto mv : board.getMove(board.getZero()))
 	{
 		NPuzzle next = board.applyMove(mv);
 		std::string key = next.flatten();
-		if (stepSoFarMap.find(key) == stepSoFarMap.end())
+		if (!closedSet.count(key))
 		{
 			numberOfStateSelected++;
-			maxNumberOfStateInMemory = maxNumberOfStateInMemory > openNodes.size() ? maxNumberOfStateInMemory : openNodes.size();
+			maxNumberOfStateInMemory = std::max(maxNumberOfStateInMemory, openNodes.size());
 			auto hFunc = next.getHeuristicFunction();
-			int totalEstimation = stepSoFar + 1 + (next.*hFunc)(next);
+			int totalEstimation;
+			if (numberOfStateSelected > 999999)
+				totalEstimation = (next.*hFunc)(next);
+			else
+				totalEstimation = stepSoFar + 1 + (next.*hFunc)(next);
 			int nextIdx = allNodes.size();
 			allNodes.push_back({next, bestNodeId, mv});
-			stepSoFarMap[key] = stepSoFar + 1;;
+			stepSoFarMap[key] = stepSoFar + 1;
 			openNodes.push({nextIdx, totalEstimation});
 		}
 	}
 }
+
 
 bool AStarSolver::solveWithAStar(const NPuzzle &puzzle)
 {
@@ -58,13 +62,18 @@ bool AStarSolver::solveWithAStar(const NPuzzle &puzzle)
 	{
 		int bestNodeId = openNodes.top().id;
 		openNodes.pop();
-		if (isSolved(bestNodeId))
-			return (true);
-		else
+		const std::string &key = allNodes[bestNodeId].board.flatten();
+		if (!closedSet.count(key))
+		{
+			closedSet.insert(key);
+			if (isSolved(bestNodeId))
+				return true;
 			pushSolverNodes(bestNodeId);
+		}
 	}
-	return (false);
+	return false;
 }
+
 
 std::vector<NPuzzle::Move> AStarSolver::getActionsPath()
 {

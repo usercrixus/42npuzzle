@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <string>
 #include <algorithm>
+#include <unordered_set>
 
 class AStarSolver
 {
@@ -15,6 +16,7 @@ private:
 	std::vector<ANode> allNodes;
 	std::priority_queue<PQItem> openNodes;
 	std::unordered_map<std::string, int> stepSoFarMap;
+	std::unordered_set<std::string> closedSet;
 	int goalIdx = -1;
 	std::size_t numberOfStateSelected = 0;
 	std::size_t maxNumberOfStateInMemory = 0;
@@ -34,7 +36,7 @@ public:
 struct AStarSolver::PQItem
 {
 	int id;
-	int totalEstimation;
+	int stepSoFar;
 	bool operator<(PQItem const &o) const
 	{
 		return totalEstimation > o.totalEstimation;
