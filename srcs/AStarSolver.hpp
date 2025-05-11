@@ -25,7 +25,7 @@ public:
 
     void initializeSolver(const NPuzzle &puzzle);
     bool isSolved(int bestNodeId);
-    void pushSolverNodes(const AStarSolver::PQItem &node);
+    void pushSolverNodes(int bestNodeId);
     bool solveWithAStar(const NPuzzle &start);
     std::vector<NPuzzle::Move> getActionsPath();
 	int getNumberOfStateSelected();
@@ -35,7 +35,6 @@ public:
 struct AStarSolver::PQItem
 {
 	int id;
-	int stepSoFar;
 	int totalEstimation;
 	bool operator<(PQItem const &o) const
 	{
@@ -46,6 +45,7 @@ struct AStarSolver::PQItem
 struct AStarSolver::ANode
 {
 	NPuzzle board;
+	int stepSoFar;
 	int parentIdx;
 	NPuzzle::Move moveFromParent;
 };
