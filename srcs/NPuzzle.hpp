@@ -17,28 +17,25 @@ private:
     int size;
     int heuristicMode;
 
-public:
-    enum Move { LEFT, RIGHT, TOP, BOTTOM };
-
-    NPuzzle(int heuristicMode);
-    ~NPuzzle();
-
-    bool parse(std::string path);
-    bool parse();
-    void print() const;
-    Point<int> getZero() const;
-    std::vector<Move> getMove(Point<int> zero) const;
-    NPuzzle applyMove(Move move) const;
-
-    bool isGoal() const;
-    bool isSolvable() const;
-    std::pair<Move, int> getBestMove() const;
     using HeuristicFunction = int (NPuzzle::*)(const NPuzzle&) const;
-    HeuristicFunction getHeuristicFunction() const;
     int estimateManhattan(const NPuzzle &other) const;
     int estimateMisplacedTiles(const NPuzzle &other) const;
     int estimateLinearConflict(const NPuzzle &other) const;
+public:
+    NPuzzle(int heuristicMode);
+    ~NPuzzle();
+
+    enum Move { LEFT, RIGHT, TOP, BOTTOM };
+    bool parse(std::string path);
+    bool parse();
+    void print() const;
+    bool isSolvable() const;
+    bool isGoal() const;
+    Point<int> getZero() const;
+    std::vector<Move> getMove(Point<int> zero) const;
+    std::string flatten() const;
+    NPuzzle applyMove(Move move) const;
+    HeuristicFunction getHeuristicFunction() const;
 
     const std::vector<std::vector<int>>& getPuzzle() const;
-    std::string flatten() const;
 };

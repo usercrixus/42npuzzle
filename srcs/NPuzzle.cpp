@@ -60,21 +60,21 @@ bool NPuzzle::isSolvable() const
 {
     std::vector<int> flat;
     int blankRow = -1;
-    for (int i = 0; i < size; ++i)
+    for (int row = 0; row < size; ++row)
     {
-        for (int j = 0; j < size; ++j)
+        for (int column = 0; column < size; ++column)
         {
-            int v = puzzle[i][j];
+            int v = puzzle[row][column];
             if (v == 0)
-                blankRow = i;
+                blankRow = row;
             else
                 flat.push_back(v);
         }
     }
     int inv = 0;
-    for (size_t a = 0; a < flat.size(); ++a)
-        for (size_t b = a + 1; b < flat.size(); ++b)
-            if (flat[a] > flat[b])
+    for (size_t row = 0; row < flat.size(); ++row)
+        for (size_t column = row + 1; column < flat.size(); ++column)
+            if (flat[row] > flat[column])
                 ++inv;
     if (size % 2 == 1)
         return (inv % 2) == 0;
@@ -136,22 +136,6 @@ bool NPuzzle::isGoal() const
                 return false;
         }
     return true;
-}
-
-std::pair<NPuzzle::Move, int> NPuzzle::getBestMove() const
-{
-    auto zero = getZero();
-    auto moves = getMove(zero);
-    std::pair<Move, int> best{LEFT, INT_MAX};
-    for (auto m : moves)
-    {
-        NPuzzle tmp = applyMove(m);
-        auto hFunc = getHeuristicFunction();
-        int h = (this->*hFunc)(tmp);
-        if (h < best.second)
-            best = {m, h};
-    }
-    return best;
 }
 
 NPuzzle::HeuristicFunction NPuzzle::getHeuristicFunction() const

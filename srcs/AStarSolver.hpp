@@ -19,17 +19,19 @@ private:
 	int goalIdx = -1;
 	std::size_t numberOfStateSelected = 0;
 	std::size_t maxNumberOfStateInMemory = 0;
+
+	void initializeSolver(const NPuzzle &puzzle);
+    bool isSolved(int bestNodeId);
+    void pushSolverNodes(int bestNodeId);
+
 public:
 	AStarSolver(/* args */);
 	~AStarSolver();
 
-    void initializeSolver(const NPuzzle &puzzle);
-    bool isSolved(int bestNodeId);
-    void pushSolverNodes(int bestNodeId);
     bool solveWithAStar(const NPuzzle &start);
-    std::vector<NPuzzle::Move> getActionsPath();
 	int getNumberOfStateSelected();
 	int getMaxnumberOfStateInMemory();
+    std::vector<NPuzzle::Move> getActionsPath();
 };
 
 struct AStarSolver::PQItem
