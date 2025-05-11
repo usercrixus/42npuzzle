@@ -36,7 +36,7 @@ public:
 struct AStarSolver::PQItem
 {
 	int id;
-	int stepSoFar;
+	int totalEstimation;
 	bool operator<(PQItem const &o) const
 	{
 		return totalEstimation > o.totalEstimation;
