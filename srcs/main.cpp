@@ -22,12 +22,12 @@ std::string moveToString(NPuzzle::Move move)
 
 int main(int argc, char const *argv[])
 {
-    if (argc > 2)
-        return (std::cerr << "Usage: " << argv[0] << " <puzzle_file>\n", 1);
-    NPuzzle puzzle;
-    if (argc == 2 && !puzzle.parse(argv[1]))
+    if (argc > 3 || argc < 2)
+        return (std::cerr << "Usage: " << argv[0] << " <heuristicMode> <puzzle_file>\n", 1);
+    NPuzzle puzzle(atoi(argv[1]));
+    if (argc == 3 && !puzzle.parse(argv[2]))
         return (std::cerr << "Failed to parse puzzle file.\n", 1);
-    else if (argc == 1)
+    else if (argc == 2)
         puzzle.parse();
     std::cout << "====Initial puzzle====\n";
     puzzle.print();

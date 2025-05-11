@@ -15,11 +15,12 @@ class NPuzzle
 private:
     std::vector<std::vector<int>> puzzle;
     int size;
+    int heuristicMode;
 
 public:
     enum Move { LEFT, RIGHT, TOP, BOTTOM };
 
-    NPuzzle();
+    NPuzzle(int heuristicMode);
     ~NPuzzle();
 
     bool parse(std::string path);
@@ -32,7 +33,11 @@ public:
     bool isGoal() const;
     bool isSolvable() const;
     std::pair<Move, int> getBestMove() const;
-    int estimate(const NPuzzle &other) const;
+    using HeuristicFunction = int (NPuzzle::*)(const NPuzzle&) const;
+    HeuristicFunction getHeuristicFunction() const;
+    int estimateManhattan(const NPuzzle &other) const;
+    int estimateMisplacedTiles(const NPuzzle &other) const;
+    int estimateLinearConflict(const NPuzzle &other) const;
 
     const std::vector<std::vector<int>>& getPuzzle() const;
     std::string flatten() const;

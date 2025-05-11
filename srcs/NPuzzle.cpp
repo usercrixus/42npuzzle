@@ -1,6 +1,6 @@
 #include "NPuzzle.hpp"
 
-NPuzzle::NPuzzle() : size(0) {}
+NPuzzle::NPuzzle(int heuristicMode) : size(0), heuristicMode(heuristicMode) {}
 NPuzzle::~NPuzzle() {}
 
 bool NPuzzle::parse(std::string path)
@@ -146,14 +146,25 @@ std::pair<NPuzzle::Move, int> NPuzzle::getBestMove() const
     for (auto m : moves)
     {
         NPuzzle tmp = applyMove(m);
-        int h = estimate(tmp);
+        auto hFunc = getHeuristicFunction();
+        int h = (this->*hFunc)(tmp);
         if (h < best.second)
             best = {m, h};
     }
     return best;
 }
 
-int NPuzzle::estimate(const NPuzzle &other) const
+NPuzzle::HeuristicFunction NPuzzle::getHeuristicFunction() const
+{
+    if (heuristicMode == 1)
+        return &NPuzzle::estimateMisplacedTiles;
+    if (heuristicMode == 2)
+        return &NPuzzle::estimateLinearConflict;
+    return &NPuzzle::estimateManhattan;
+}
+
+
+int NPuzzle::estimateManhattan(const NPuzzle &other) const
 {
     int sum = 0;
     for (int row = 0; row < size; ++row)
@@ -168,6 +179,51 @@ int NPuzzle::estimate(const NPuzzle &other) const
             }
         }
     return sum;
+}
+
+int NPuzzle::estimateMisplacedTiles(const NPuzzle &other) const
+{
+    int count = 0;
+    for (int row = 0; row < size; ++row)
+    {
+        for (int col = 0; col < size; ++col)
+        {
+            int value = other.puzzle[row][col];
+            int goalValue = (row == size - 1 && col == size - 1) ? 0 : row * size + col + 1;
+            if (value != 0 && value != goalValue)
+                ++count;
+        }
+    }
+    return count;
+}
+
+int NPuzzle::estimateLinearConflict(const NPuzzle &other) const
+{
+    int conflict = 0;
+    for (int row = 0; row < size; ++row)
+    {
+        for (int i = 0; i < size; ++i)
+        {
+            int tile1 = other.puzzle[row][i];
+            if (tile1 == 0) continue;
+            int goalRow1 = (tile1 - 1) / size;
+            if (goalRow1 != row) continue;
+
+            for (int j = i + 1; j < size; ++j)
+            {
+                int tile2 = other.puzzle[row][j];
+                if (tile2 == 0) continue;
+                int goalRow2 = (tile2 - 1) / size;
+                if (goalRow2 != row) continue;
+
+                int goalCol1 = (tile1 - 1) % size;
+                int goalCol2 = (tile2 - 1) % size;
+                if (goalCol1 > goalCol2)
+                    conflict += 2;
+            }
+        }
+    }
+    return estimateManhattan(other) + conflict; // Manhattan + linear conflict
 }
 
 const std::vector<std::vector<int>> &NPuzzle::getPuzzle() const

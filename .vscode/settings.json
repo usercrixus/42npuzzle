@@ -68,7 +68,13 @@
         "__nullptr": "cpp",
         "unordered_set": "cpp",
         "queue": "cpp",
-        "__node_handle": "cpp"
+        "__node_handle": "cpp",
+        "climits": "cpp",
+        "__bit_reference": "cpp",
+        "__functional_base": "cpp",
+        "__memory": "cpp",
+        "filesystem": "cpp",
+        "locale": "cpp"
     }
     
 }
