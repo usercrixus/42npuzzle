@@ -14,8 +14,7 @@ void AStarSolver::initializeSolver(const NPuzzle &puzzle)
 	auto hFunc = puzzle.getHeuristicFunction();
 	int initialEstimation = (puzzle.*hFunc)(puzzle);
 	allNodes.push_back({puzzle, -1, NPuzzle::LEFT});
-	openNodes.push({0, initialEstimation});
-	stepSoFarMap[puzzle.flatten()] = 0;
+	openNodes.push({0, 0, initialEstimation});
 }
 
 bool AStarSolver::isSolved(int bestNodeId)
@@ -28,10 +27,10 @@ bool AStarSolver::isSolved(int bestNodeId)
 	return (false);
 }
 
-void AStarSolver::pushSolverNodes(int bestNodeId)
+void AStarSolver::pushSolverNodes(const AStarSolver::PQItem &node)
 {
-	const NPuzzle board = allNodes[bestNodeId].board;
-	int stepSoFar = stepSoFarMap.at(board.flatten());
+	const NPuzzle board = allNodes[node.id].board;
+	int stepSoFar = node.stepSoFar;
 	for (auto mv : board.getMove(board.getZero()))
 	{
 		NPuzzle next = board.applyMove(mv);
@@ -47,9 +46,8 @@ void AStarSolver::pushSolverNodes(int bestNodeId)
 			else
 				totalEstimation = stepSoFar + 1 + (next.*hFunc)(next);
 			int nextIdx = allNodes.size();
-			allNodes.push_back({next, bestNodeId, mv});
-			stepSoFarMap[key] = stepSoFar + 1;
-			openNodes.push({nextIdx, totalEstimation});
+			allNodes.push_back({next, node.id, mv});
+			openNodes.push({nextIdx, stepSoFar + 1, totalEstimation});
 		}
 	}
 }
@@ -60,15 +58,15 @@ bool AStarSolver::solveWithAStar(const NPuzzle &puzzle)
 	initializeSolver(puzzle);
 	while (!openNodes.empty())
 	{
-		int bestNodeId = openNodes.top().id;
+		const AStarSolver::PQItem bestNode = openNodes.top();
 		openNodes.pop();
-		const std::string &key = allNodes[bestNodeId].board.flatten();
+		const std::string &key = allNodes[bestNode.id].board.flatten();
 		if (!closedSet.count(key))
 		{
 			closedSet.insert(key);
-			if (isSolved(bestNodeId))
+			if (isSolved(bestNode.id))
 				return true;
-			pushSolverNodes(bestNodeId);
+			pushSolverNodes(bestNode);
 		}
 	}
 	return false;
