@@ -2,12 +2,8 @@
 
 #include <string>
 #include <vector>
-#include <sstream>
-#include <iostream>
 #include <climits>
-#include <random>
 #include <map>
-#include "parser/FileToVector.hpp"
 #include "geometry/point.hpp"
 
 class NPuzzle
@@ -17,10 +13,10 @@ private:
     int size;
     int heuristicMode;
 
-    using HeuristicFunction = int (NPuzzle::*)(const NPuzzle&) const;
-    int estimateManhattan(const NPuzzle &other) const;
-    int estimateMisplacedTiles(const NPuzzle &other) const;
-    int estimateLinearConflict(const NPuzzle &other) const;
+    using HeuristicFunction = int (NPuzzle::*)() const;
+    int estimateManhattan() const;
+    int estimateMisplacedTiles() const;
+    int estimateLinearConflict() const;
 
 	std::map<int, Point<int> >	   goal_map;
 	std::map<int, Point<int> > build_goal_map() const;

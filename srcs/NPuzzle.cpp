@@ -1,4 +1,8 @@
+#include <iostream>
+#include <random>
+
 #include "NPuzzle.hpp"
+#include "parser/FileToVector.hpp"
 
 NPuzzle::NPuzzle(int heuristicMode) : size(0), heuristicMode(heuristicMode) {}
 
@@ -124,23 +128,6 @@ NPuzzle NPuzzle::applyMove(Move m) const
 	return nxt;
 }
 
-// bool NPuzzle::isGoal() const
-// {
-//     for (int i = 0; i < size; ++i)
-//         for (int j = 0; j < size; ++j)
-//         {
-//             int expect = i * size + j + 1;
-//             if (i == size - 1 && j == size - 1)
-//             {
-//                 if (puzzle[i][j] != 0)
-//                     return false;
-//             }
-//             else if (puzzle[i][j] != expect)
-//                 return false;
-//         }
-//     return true;
-// }
-
 NPuzzle::HeuristicFunction NPuzzle::getHeuristicFunction() const
 {
 	if (heuristicMode == 1)
@@ -150,7 +137,7 @@ NPuzzle::HeuristicFunction NPuzzle::getHeuristicFunction() const
 	return &NPuzzle::estimateManhattan;
 }
 
-int NPuzzle::estimateManhattan(const NPuzzle &other) const
+int NPuzzle::estimateManhattan() const
 {
 	int sum = 0;
 	for (int row = 0; row < size; ++row)
@@ -159,55 +146,37 @@ int NPuzzle::estimateManhattan(const NPuzzle &other) const
 			int value = puzzle[row][col];
 			if (value > 0)
 			{
-				int targetRow = other.goal_map.at(value).getX();
-				int targetCol = other.goal_map.at(value).getY();
+				int targetRow = goal_map.at(value).getX();
+				int targetCol = goal_map.at(value).getY();
 				sum += abs(row - targetRow) + abs(col - targetCol);
 			}
 		}
 	return sum;
 }
 
-// int NPuzzle::estimateManhattan(const NPuzzle &other) const
-// {
-// 	int sum = 0;
-// 	for (int row = 0; row < size; ++row)
-// 		for (int col = 0; col < size; ++col)
-// 		{
-// 			int value = other.puzzle[row][col];
-// 			if (value > 0)
-// 			{
-// 				int targetRow = (value - 1) / size;
-// 				int targetCol = (value - 1) % size;
-// 				sum += abs(row - targetRow) + abs(col - targetCol);
-// 			}
-// 		}
-// 	return sum;
-// }
-
-int NPuzzle::estimateMisplacedTiles(const NPuzzle &other) const
+int NPuzzle::estimateMisplacedTiles() const
 {
+	int col = 0, row = 0;
+	int dir_row = 0, dir_col = 1;
+	int end = size - 1, start = 0;
 	int count = 0;
-	for (int row = 0; row < size; ++row)
+	for (int i = 1; i < size * size; i++)
 	{
-		for (int col = 0; col < size; ++col)
-		{
-			int value = other.puzzle[row][col];
-			int goalValue = (row == size - 1 && col == size - 1) ? 0 : row * size + col + 1;
-			if (value != 0 && value != goalValue)
-				++count;
-		}
+		if (puzzle[row][col] != i)
+			++count;
+		next_snail(row, col, dir_row, dir_col, start, end);
 	}
 	return count;
 }
 
-int NPuzzle::estimateLinearConflict(const NPuzzle &other) const
+int NPuzzle::estimateLinearConflict() const
 {
 	int conflict = 0;
 	for (int row = 0; row < size; ++row)
 	{
 		for (int i = 0; i < size; ++i)
 		{
-			int tile1 = other.puzzle[row][i];
+			int tile1 = puzzle[row][i];
 			if (tile1 == 0)
 				continue;
 			int goalRow1 = (tile1 - 1) / size;
@@ -216,7 +185,7 @@ int NPuzzle::estimateLinearConflict(const NPuzzle &other) const
 
 			for (int j = i + 1; j < size; ++j)
 			{
-				int tile2 = other.puzzle[row][j];
+				int tile2 = puzzle[row][j];
 				if (tile2 == 0)
 					continue;
 				int goalRow2 = (tile2 - 1) / size;
@@ -230,7 +199,7 @@ int NPuzzle::estimateLinearConflict(const NPuzzle &other) const
 			}
 		}
 	}
-	return estimateManhattan(other) + conflict; // Manhattan + linear conflict
+	return estimateManhattan() + conflict; // Manhattan + linear conflict
 }
 
 const std::vector<std::vector<int> > &NPuzzle::getPuzzle() const
