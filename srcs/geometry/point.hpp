@@ -3,23 +3,29 @@
 template <typename T>
 class Point
 {
-private:
+  private:
 	T x;
 	T y;
-public:
+
+  public:
 	Point(T x, T y);
+	Point();
 	~Point();
 
-	T getX();
-	T getY();
+	T getX() const;
+	T getY() const;
 };
 
 template <typename T>
-inline Point<T>::Point(T x, T y):
-x(x),
-y(y)
+inline Point<T>::Point(T x, T y) : x(x), y(y)
 {
 }
+
+template <typename T>
+inline Point<T>::Point() : x(0), y(0)
+{
+}
+
 
 template <typename T>
 inline Point<T>::~Point()
@@ -27,13 +33,13 @@ inline Point<T>::~Point()
 }
 
 template <typename T>
-inline T Point<T>::getX()
+inline T Point<T>::getX() const
 {
-    return (x);
+	return x;
 }
 
 template <typename T>
-inline T Point<T>::getY()
+inline T Point<T>::getY() const
 {
-    return (y);
+	return y;
 }

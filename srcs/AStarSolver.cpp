@@ -12,7 +12,7 @@ AStarSolver::~AStarSolver()
 void AStarSolver::initializeSolver(const NPuzzle &puzzle)
 {
 	auto hFunc = puzzle.getHeuristicFunction();
-	int initialEstimation = (puzzle.*hFunc)(puzzle);
+	int initialEstimation = (puzzle.*hFunc)();
 	allNodes.push_back({puzzle, 0, -1, NPuzzle::LEFT});
 	openNodes.push({0, initialEstimation});
 }
@@ -43,9 +43,9 @@ void AStarSolver::pushSolverNodes(int bestNodeId)
 			auto hFunc = next.getHeuristicFunction();
 			int totalEstimation;
 			if (numberOfStateSelected > 999999)
-				totalEstimation = (next.*hFunc)(next);
+				totalEstimation = (next.*hFunc)();
 			else
-				totalEstimation = stepSoFar + 1 + (next.*hFunc)(next);
+				totalEstimation = stepSoFar + 1 + (next.*hFunc)();
 			int nextIdx = allNodes.size();
 			allNodes.push_back({next, stepSoFar + 1, bestNodeId, mv});
 			openNodes.push({nextIdx, totalEstimation});
