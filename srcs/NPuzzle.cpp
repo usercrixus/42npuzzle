@@ -23,7 +23,7 @@ bool NPuzzle::parse(std::string path)
 	for (int i = 0; i < size; ++i)
 		for (int j = 0; j < size; ++j)
 			puzzle[i].push_back(tokens[1 + i * size + j]);
-	goal_map = build_goal_map();
+	goalMap = buildGoalMap();
 	return true;
 }
 
@@ -33,13 +33,13 @@ bool NPuzzle::parse()
 	std::vector<int> buffer(size * size);
 	std::iota(buffer.begin(), buffer.end(), 0);
 	std::random_device rd;
-	std::mt19937	   rng(rd());
+	std::mt19937 rng(rd());
 	std::shuffle(buffer.begin(), buffer.end(), rng);
 	puzzle.assign(size, std::vector<int>(size));
 	for (int i = 0; i < size; ++i)
 		for (int j = 0; j < size; ++j)
 			puzzle[i][j] = buffer[i * size + j];
-	goal_map = build_goal_map();
+	goalMap = buildGoalMap();
 	return true;
 }
 
@@ -66,7 +66,7 @@ std::string NPuzzle::flatten() const
 bool NPuzzle::isSolvable() const
 {
 	std::vector<int> flat;
-	int				 blankRow = -1;
+	int blankRow = -1;
 	for (int row = 0; row < size; ++row)
 	{
 		for (int column = 0; column < size; ++column)
@@ -101,7 +101,7 @@ Point<int> NPuzzle::getZero() const
 std::vector<NPuzzle::Move> NPuzzle::getMove(Point<int> zero) const
 {
 	std::vector<Move> mv;
-	int				  x = zero.getX(), y = zero.getY();
+	int x = zero.getX(), y = zero.getY();
 	if (x > 0)
 		mv.push_back(LEFT);
 	if (x < size - 1)
@@ -146,8 +146,8 @@ int NPuzzle::estimateManhattan() const
 			int value = puzzle[row][col];
 			if (value > 0)
 			{
-				int targetRow = goal_map.at(value).getX();
-				int targetCol = goal_map.at(value).getY();
+				int targetRow = goalMap.at(value).getX();
+				int targetCol = goalMap.at(value).getY();
 				sum += abs(row - targetRow) + abs(col - targetCol);
 			}
 		}
@@ -164,64 +164,96 @@ int NPuzzle::estimateMisplacedTiles() const
 	{
 		if (puzzle[row][col] != i)
 			++count;
-		next_snail(row, col, dir_row, dir_col, start, end);
+		nextSnail(row, col, dir_row, dir_col, start, end);
 	}
 	return count;
 }
 
 int NPuzzle::estimateLinearConflict() const
 {
+	return estimateManhattan() + linearConflictRow() + linearConflictColumn();
+}
+
+int NPuzzle::linearConflictRow() const
+{
 	int conflict = 0;
 	for (int row = 0; row < size; ++row)
 	{
-		for (int i = 0; i < size; ++i)
+		for (int col = 0; col < size; ++col)
 		{
-			int tile1 = puzzle[row][i];
+			int tile1 = puzzle[row][col];
 			if (tile1 == 0)
 				continue;
-			int goalRow1 = (tile1 - 1) / size;
-			if (goalRow1 != row)
+			Point<int> goal1 = goalMap.at(tile1);
+			if (goal1.getY() != row)
 				continue;
-
-			for (int j = i + 1; j < size; ++j)
+			for (int colOnRight = col + 1; colOnRight < size; ++colOnRight)
 			{
-				int tile2 = puzzle[row][j];
+				int tile2 = puzzle[row][colOnRight];
 				if (tile2 == 0)
 					continue;
-				int goalRow2 = (tile2 - 1) / size;
-				if (goalRow2 != row)
+				Point<int> goal2 = goalMap.at(tile2);
+				if (goal2.getY() != row)
 					continue;
-
-				int goalCol1 = (tile1 - 1) % size;
-				int goalCol2 = (tile2 - 1) % size;
-				if (goalCol1 > goalCol2)
+				if (goal1.getX() > goal2.getX())
 					conflict += 2;
 			}
 		}
 	}
-	return estimateManhattan() + conflict; // Manhattan + linear conflict
+	return conflict;
 }
 
-const std::vector<std::vector<int> > &NPuzzle::getPuzzle() const
+int NPuzzle::linearConflictColumn() const
+{
+	int conflict = 0;
+	for (int col = 0; col < size; ++col)
+	{
+		for (int row = 0; row < size; ++row)
+		{
+			int tile1 = puzzle[row][col];
+			if (tile1 == 0)
+				continue;
+			Point<int> goal1 = goalMap.at(tile1);
+			if (goal1.getX() != col)
+				continue;
+
+			for (int rowDown = row + 1; rowDown < size; ++rowDown)
+			{
+				int tile2 = puzzle[rowDown][col];
+				if (tile2 == 0)
+					continue;
+				Point<int> goal2 = goalMap.at(tile2);
+				if (goal2.getX() != col)
+					continue;
+
+				if (goal1.getY() > goal2.getY())
+					conflict += 2;
+			}
+		}
+	}
+	return conflict;
+}
+
+const std::vector<std::vector<int>> &NPuzzle::getPuzzle() const
 {
 	return puzzle;
 }
 
-std::map<int, Point<int> > NPuzzle::build_goal_map() const
+std::map<int, Point<int>> NPuzzle::buildGoalMap() const
 {
-	std::map<int, Point<int> > ret;
-	int						   col = 0, row = 0;
-	int						   dir_row = 0, dir_col = 1;
-	int						   end = size - 1, start = 0;
+	std::map<int, Point<int>> ret;
+	int col = 0, row = 0;
+	int dir_row = 0, dir_col = 1;
+	int end = size - 1, start = 0;
 	for (int i = 1; i < size * size; i++)
 	{
 		ret[i] = Point<int>(row, col);
-		next_snail(row, col, dir_row, dir_col, start, end);
+		nextSnail(row, col, dir_row, dir_col, start, end);
 	}
 	return ret;
 }
 
-void NPuzzle::next_snail(int &row, int &col, int &dir_row, int &dir_col, int &start, int &end) const
+void NPuzzle::nextSnail(int &row, int &col, int &dir_row, int &dir_col, int &start, int &end) const
 {
 	if (col == end and dir_col == 1)
 	{
@@ -258,7 +290,7 @@ bool NPuzzle::isGoal() const
 	{
 		if (puzzle[row][col] != i)
 			return false;
-		next_snail(row, col, dir_row, dir_col, start, end);
+		nextSnail(row, col, dir_row, dir_col, start, end);
 	}
 	return true;
 }

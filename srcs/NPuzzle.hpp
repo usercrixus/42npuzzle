@@ -17,10 +17,12 @@ private:
     int estimateManhattan() const;
     int estimateMisplacedTiles() const;
     int estimateLinearConflict() const;
+    int linearConflictRow() const;
+    int linearConflictColumn() const;
 
-	std::map<int, Point<int> >	   goal_map;
-	std::map<int, Point<int> > build_goal_map() const;
-	void next_snail(int &row, int &col, int &dir_row, int &dir_col, int &start, int &end) const;
+    std::map<int, Point<int> >	   goalMap;
+	std::map<int, Point<int> > buildGoalMap() const;
+	void nextSnail(int &row, int &col, int &dir_row, int &dir_col, int &start, int &end) const;
 public:
     NPuzzle(int heuristicMode);
     ~NPuzzle();

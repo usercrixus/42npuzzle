@@ -21,10 +21,10 @@ fclean: clean
 
 re: fclean all
 
-test: all
+test3: all
 	./$(NAME) 0 ./grids/solvable-3.txt
 
 test4: all
-	./$(NAME) 0 ./grids/solvable-4.txt
+	./$(NAME) 2 ./grids/solvable-4.txt
 
 .PHONY: clean fclean re test test4
