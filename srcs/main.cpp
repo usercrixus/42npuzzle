@@ -31,8 +31,8 @@ int main(int argc, char const *argv[])
         puzzle.parse();
     std::cout << "====Initial puzzle====\n";
     puzzle.print();
-    if (!puzzle.isSolvable())
-        return (std::cout << "This puzzle is unsolvable (odd inversion count).\n", 0);
+    // if (!puzzle.isSolvable())
+    //     return (std::cout << "This puzzle is unsolvable (odd inversion count).\n", 0);
     if (puzzle.isGoal())
         return (std::cout << "Puzzle is already solved!\n", 0);
     AStarSolver s;

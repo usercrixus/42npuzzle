@@ -6,7 +6,7 @@
 #include <iostream>
 #include <climits>
 #include <random>
-#include <chrono>
+#include <map>
 #include "parser/FileToVector.hpp"
 #include "geometry/point.hpp"
 
@@ -21,6 +21,10 @@ private:
     int estimateManhattan(const NPuzzle &other) const;
     int estimateMisplacedTiles(const NPuzzle &other) const;
     int estimateLinearConflict(const NPuzzle &other) const;
+
+	std::map<int, Point<int> >	   goal_map;
+	std::map<int, Point<int> > build_goal_map() const;
+	void next_snail(int &row, int &col, int &dir_row, int &dir_col, int &start, int &end) const;
 public:
     NPuzzle(int heuristicMode);
     ~NPuzzle();
