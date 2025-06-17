@@ -2,8 +2,7 @@ NAME = npuzzle
 SRCS1 := $(shell find srcs -name '*.cpp')
 HDRS1 := $(shell find srcs -name '*.hpp')
 OBJS1 := $(SRCS1:.cpp=.o)
-# CFLAGS = -Wall -Werror -Wextra -funroll-loops -O3
-CFLAGS =  -funroll-loops -O3 -std=c++17
+CFLAGS = -Wall -Werror -Wextra -funroll-loops -O3 -std=c++17
 
 all: $(NAME)
 

@@ -17,7 +17,7 @@ bool NPuzzle::parse(std::string path)
 	if (tokens.size() < 2)
 		return std::cout << "The file " << path << " is incorrectly formatted\n", false;
 	size = tokens[0];
-	if (tokens.size() - 1 != size * size)
+	if (tokens.size() - 1 != (size_t)size * size)
 		return std::cout << "The file " << path << " is incorrectly formatted\n", false;
 	puzzle.assign(size, std::vector<int>());
 	for (int i = 0; i < size; ++i)
@@ -33,7 +33,7 @@ bool NPuzzle::parse()
 	std::vector<int> buffer(size * size);
 	std::iota(buffer.begin(), buffer.end(), 0);
 	std::random_device rd;
-	std::mt19937 rng(rd());
+	std::mt19937	   rng(rd());
 	std::shuffle(buffer.begin(), buffer.end(), rng);
 	puzzle.assign(size, std::vector<int>(size));
 	for (int i = 0; i < size; ++i)
@@ -66,7 +66,7 @@ std::string NPuzzle::flatten() const
 bool NPuzzle::isSolvable() const
 {
 	std::vector<int> flat;
-	int blankRow = -1;
+	int				 blankRow = -1;
 	for (int row = 0; row < size; ++row)
 	{
 		for (int column = 0; column < size; ++column)
@@ -101,7 +101,7 @@ Point<int> NPuzzle::getZero() const
 std::vector<NPuzzle::Move> NPuzzle::getMove(Point<int> zero) const
 {
 	std::vector<Move> mv;
-	int x = zero.getX(), y = zero.getY();
+	int				  x = zero.getX(), y = zero.getY();
 	if (x > 0)
 		mv.push_back(LEFT);
 	if (x < size - 1)
@@ -234,17 +234,17 @@ int NPuzzle::linearConflictColumn() const
 	return conflict;
 }
 
-const std::vector<std::vector<int>> &NPuzzle::getPuzzle() const
+const std::vector<std::vector<int> > &NPuzzle::getPuzzle() const
 {
 	return puzzle;
 }
 
-std::map<int, Point<int>> NPuzzle::buildGoalMap() const
+std::map<int, Point<int> > NPuzzle::buildGoalMap() const
 {
-	std::map<int, Point<int>> ret;
-	int col = 0, row = 0;
-	int dir_row = 0, dir_col = 1;
-	int end = size - 1, start = 0;
+	std::map<int, Point<int> > ret;
+	int						   col = 0, row = 0;
+	int						   dir_row = 0, dir_col = 1;
+	int						   end = size - 1, start = 0;
 	for (int i = 1; i < size * size; i++)
 	{
 		ret[i] = Point<int>(row, col);
