@@ -81,9 +81,9 @@ int ManhattanDistance::calc(const NPuzzle &puzzle)
 	return sum;
 }
 
-MissplacedTitles::MissplacedTitles(int s) : Heuristic(s) {}
+MisplacedTitles::MisplacedTitles(int s) : Heuristic(s) {}
 
-int MissplacedTitles::calc(const NPuzzle &puzzle)
+int MisplacedTitles::calc(const NPuzzle &puzzle)
 {
 	int			col = 0, row = 0;
 	int			dir_row = 0, dir_col = 1;

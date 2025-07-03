@@ -7,13 +7,14 @@
 class NPuzzle
 {
   private:
-	std::vector<std::vector<int> > puzzle;
-	int							   size;
-	std::string					   strGrid;
+	std::vector<std::vector<int> > puzzle = std::vector<std::vector<int> >();
+	int							   size = 0;
+	std::string					   strGrid = std::string();
+	Point						   zero = {0, 0};
 	std::string					   flatten() const;
-	Point						   zero;
 
   public:
+	NPuzzle() {};
 	NPuzzle(int size);
 	NPuzzle(const std::string &path);
 	~NPuzzle();

@@ -2,7 +2,7 @@
 
 #include <map>
 #include <queue>
-#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "ANode.hpp"
@@ -13,14 +13,15 @@
 class AStarSolver
 {
   private:
-	std::priority_queue<ANodeQueue>			 openQueue;
-	std::map<std::string, ANode *>			 openMap;
-	std::unordered_map<std::string, ANode *> closedSet;
-	size_t									 numberOfStateSelected = 0;
-	size_t									 maxNumberOfStateInMemory = 0;
-	Heuristic								*heuristic;
-	options									 opts;
-	ANode									*endNode;
+	std::map<std::string, ANode>	allNodes;
+	std::priority_queue<ANodeQueue> openQueue;
+	std::unordered_set<std::string> openSet;
+	std::unordered_set<std::string> closedSet;
+	size_t							numberOfStateSelected = 0;
+	size_t							maxNumberOfStateInMemory = 0;
+	Heuristic					   *heuristic;
+	options							opts;
+	ANode						   *endNode;
 
 	void pushSolverNodes(ANode *current);
 
