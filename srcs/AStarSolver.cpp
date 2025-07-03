@@ -33,6 +33,8 @@ bool AStarSolver::solve()
 	{
 		ANode *current = openQueue.top();
 		openQueue.pop();
+		if (!current->getValid())
+			continue;
 
 		openSet.erase(current->hash());
 
@@ -57,30 +59,43 @@ void AStarSolver::pushSolverNodes(ANode *current)
 	for (auto mv : current->getPuzzle().getMove())
 	{
 		NPuzzle		next = board.applyMove(mv);
-		std::string k = next.getFlatten();
-		if (closedSet.find(k) != closedSet.end())
+		std::string key = next.getFlatten();
+		if (closedSet.find(key) != closedSet.end())
 			continue;
-		numberOfStateSelected++;
-		maxNumberOfStateInMemory = std::max(maxNumberOfStateInMemory, openQueue.size());
-		if (openSet.find(k) == openSet.end())
+		ANode *node_ptr;
+		if (openSet.find(key) == openSet.end())
 		{
-			allNodes[k] = ANode(next, mv, current);
-			ANode *node_ptr = &allNodes[k];
+			allNodes[key] = ANode(next, mv, current);
+			node_ptr = &allNodes[key];
+
 			if (!opts.greedy)
 				node_ptr->setG(current->getG() + 1);
 			if (!opts.uniform)
 				node_ptr->setH(heuristic->calc(next));
+
 			openQueue.push(node_ptr);
-			openSet.insert(k);
+			openSet.insert(key);
+
+			numberOfStateSelected++;
+			maxNumberOfStateInMemory = std::max(maxNumberOfStateInMemory, openQueue.size());
 		}
-		else if (allNodes.find(k)->second.getG() > current->getG() + 1)
+		else if (allNodes[key].getG() > current->getG() + 1)
 		{
-			ANode *node_ptr = &allNodes[k];
+			allNodes[key].setInvalid();
+
+			allNodes[key] = ANode(next, mv, current);
+			node_ptr = &allNodes[key];
+
 			if (!opts.greedy)
 				node_ptr->setG(current->getG() + 1);
 			if (!opts.uniform)
 				node_ptr->setH(heuristic->calc(next));
-			node_ptr->setParent(current, mv);
+
+			openQueue.push(node_ptr);
+			// openSet.insert(key);
+
+			numberOfStateSelected++;
+			maxNumberOfStateInMemory = std::max(maxNumberOfStateInMemory, openQueue.size());
 		}
 	}
 }
