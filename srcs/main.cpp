@@ -1,55 +1,41 @@
-#include "NPuzzle.hpp"
 #include "AStarSolver.hpp"
-#include <iostream>
-#include <string>
+#include "Heuristic.hpp"
+#include "NPuzzle.hpp"
+#include "parser/arguments.hpp"
 
-std::string moveToString(NPuzzle::Move move)
-{
-    switch (move)
-    {
-    case NPuzzle::LEFT:
-        return "LEFT";
-    case NPuzzle::RIGHT:
-        return "RIGHT";
-    case NPuzzle::TOP:
-        return "TOP";
-    case NPuzzle::BOTTOM:
-        return "BOTTOM";
-    default:
-        return "UNKNOWN";
-    }
-}
+#include <exception>
+#include <iostream>
+#include <ostream>
 
 int main(int argc, char const *argv[])
 {
-    if (argc > 3 || argc < 2)
-        return (std::cerr << "Usage: " << argv[0] << " <heuristicMode> <puzzle_file>\n", 1);
-    NPuzzle puzzle(atoi(argv[1]));
-    if (argc == 3 && !puzzle.parse(argv[2]))
-        return (std::cerr << "Failed to parse puzzle file.\n", 1);
-    else if (argc == 2)
-        puzzle.parse();
-    std::cout << "====Initial puzzle====\n";
-    puzzle.print();
-    // if (!puzzle.isSolvable())
-    //     return (std::cout << "This puzzle is unsolvable (odd inversion count).\n", 0);
-    if (puzzle.isGoal())
-        return (std::cout << "Puzzle is already solved!\n", 0);
-    AStarSolver s;
-    s.solveWithAStar(puzzle);
-    auto solution = s.getActionsPath();
-    if (solution.empty())
-        std::cout << "No solution found (this should never happen for a solvable puzzle).\n";
-    else
-    {
-        std::cout << "=====SUMMARY====\n";
-        std::cout << "Solution moves (" << solution.size() << "):\n";
-        std::cout << "Number of state selected (" << s.getNumberOfStateSelected() << "):\n";
-        std::cout << "Max number of state in memory (" << s.getMaxnumberOfStateInMemory() << "):\n";
-        std::cout << "Solution:\n";
-        for (auto move : solution)
-            std::cout << moveToString(move) << " ";
-        std::cout << "\n";
-    }
-    return 0;
+	options opts;
+	(void)argc;
+	try
+	{
+		opts = parse_args(argv);
+		NPuzzle puzzle = opts.generatePuzzle ? NPuzzle(4) : NPuzzle(opts.puzzlePath);
+
+		if (!opts.printMovesOnly)
+		{
+			std::cout << "===== Initial puzzle =====" << std::endl;
+			puzzle.print();
+		}
+
+		if (puzzle.isSolvable())
+			return std::cout << "This puzzle is unsolvable (odd inversion count)." << std::endl, 0;
+
+		AStarSolver s(opts, puzzle);
+		s.solve();
+		if (!opts.printMovesOnly)
+			s.printInfo();
+		s.printSolution();
+		return 0;
+	}
+	catch (const std::exception &e)
+	{
+		std::cout << e.what() << std::endl;
+		std::cout << "Usage: " << argv[0] << " [-q] [-u] <heuristicMode> <puzzle_file>" << std::endl;
+		return 1;
+	}
 }

@@ -2,7 +2,7 @@ NAME = npuzzle
 SRCS1 := $(shell find srcs -name '*.cpp')
 HDRS1 := $(shell find srcs -name '*.hpp')
 OBJS1 := $(SRCS1:.cpp=.o)
-CFLAGS = -Wall -Werror -Wextra -funroll-loops -O3 -std=c++17
+CFLAGS = -Wall -Werror -Wextra -funroll-loops -O3 -std=c++17 -g3
 
 all: $(NAME)
 
@@ -20,10 +20,21 @@ fclean: clean
 
 re: fclean all
 
+test: all
+	./npuzzle 0 grids/solvable-3.txt
+	./npuzzle -u 0 grids/solvable-3.txt
+	./npuzzle -g 0 grids/solvable-3.txt
+
+vtest: all
+	valgrind ./npuzzle 0 grids/solvable-3.txt
+
 test3: all
-	./$(NAME) 0 ./grids/solvable-3.txt
+	time ./$(NAME) 0 ./grids/solvable-3.txt
 
 test4: all
-	./$(NAME) 2 ./grids/solvable-4.txt
+	time ./$(NAME) 0 ./grids/solvable-4.txt
 
-.PHONY: clean fclean re test test4
+checker:
+	./npuzzle -q 0 ./grids/solvable-4.txt | python3 ./checker/checker.py grids/solvable-4.txt
+
+.PHONY: clean fclean re test test4 checker
