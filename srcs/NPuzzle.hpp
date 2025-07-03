@@ -1,43 +1,43 @@
 #pragma once
 
+#include "geometry/point.hpp"
 #include <string>
 #include <vector>
-#include <climits>
-#include <map>
-#include "geometry/point.hpp"
 
 class NPuzzle
 {
-private:
-    std::vector<std::vector<int>> puzzle;
-    int size;
-    int heuristicMode;
+  private:
+	std::vector<std::vector<int> > puzzle;
+	int							   size;
+	std::string					   strGrid;
+	std::string					   flatten() const;
+	Point						   zero;
 
-    using HeuristicFunction = int (NPuzzle::*)() const;
-    int estimateManhattan() const;
-    int estimateMisplacedTiles() const;
-    int estimateLinearConflict() const;
-    int linearConflictRow() const;
-    int linearConflictColumn() const;
+  public:
+	NPuzzle(int size);
+	NPuzzle(const std::string &path);
+	~NPuzzle();
 
-    std::map<int, Point<int> >	   goalMap;
-	std::map<int, Point<int> > buildGoalMap() const;
-	void nextSnail(int &row, int &col, int &dir_row, int &dir_col, int &start, int &end) const;
-public:
-    NPuzzle(int heuristicMode);
-    ~NPuzzle();
+	using Grid = const std::vector<std::vector<int> >;
 
-    enum Move { LEFT, RIGHT, TOP, BOTTOM };
-    bool parse(std::string path);
-    bool parse();
-    void print() const;
-    bool isSolvable() const;
-    bool isGoal() const;
-    Point<int> getZero() const;
-    std::vector<Move> getMove(Point<int> zero) const;
-    std::string flatten() const;
-    NPuzzle applyMove(Move move) const;
-    HeuristicFunction getHeuristicFunction() const;
+	enum Move
+	{
+		LEFT,
+		RIGHT,
+		TOP,
+		BOTTOM,
+		NONE,
+	};
 
-    const std::vector<std::vector<int>>& getPuzzle() const;
+	void	print() const;
+	bool	isSolvable() const;
+	NPuzzle applyMove(Move move) const;
+
+	NPuzzle::Grid	  &getPuzzle() const;
+	const std::string &getFlatten() const;
+
+	void			  setGrid(int row, int col, int value);
+	Point			  getZero() const;
+	std::vector<Move> getMove() const;
+	int				  getSize() const;
 };

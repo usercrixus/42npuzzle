@@ -1,97 +1,137 @@
-// solveWithAStar.cpp
 #include "AStarSolver.hpp"
+#include "ANode.hpp"
 
-AStarSolver::AStarSolver()
+#include <algorithm>
+#include <iostream>
+#include <stdexcept>
+
+AStarSolver::AStarSolver(const options &opts, NPuzzle start) : opts(opts)
 {
+	if (opts.heuristicMode == 0)
+		heuristic = new ManhattanDistance(start.getSize());
+	else if (opts.heuristicMode == 1)
+		heuristic = new MissplacedTitles(start.getSize());
+	else if (opts.heuristicMode == 2)
+		heuristic = new LinearConflicts(start.getSize());
+	else
+		throw std::runtime_error(
+			"invalid heuristicMode {0:Manhattan distance, 1: Missplaced titles, 3: Linear conflicts");
+	auto node = new ANode(start, heuristic->calc(start));
+	openQueue.push(node);
+	openMap[node->hash()] = node;
 }
 
 AStarSolver::~AStarSolver()
 {
+	delete heuristic;
+	for (auto i : openMap)
+		delete i.second;
+	for (auto i : closedSet)
+		delete i.second;
 }
 
-void AStarSolver::initializeSolver(const NPuzzle &puzzle)
+bool AStarSolver::solve()
 {
-	auto hFunc = puzzle.getHeuristicFunction();
-	int initialEstimation = (puzzle.*hFunc)();
-	allNodes.push_back({puzzle, 0, -1, NPuzzle::LEFT});
-	openNodes.push({0, initialEstimation});
-}
-
-bool AStarSolver::isSolved(int bestNodeId)
-{
-	if (allNodes[bestNodeId].board.isGoal())
+	while (!openQueue.empty())
 	{
-		goalIdx = bestNodeId;
-		return (true);
-	}
-	return (false);
-}
-
-void AStarSolver::pushSolverNodes(int bestNodeId)
-{
-	AStarSolver::ANode &node =  allNodes[bestNodeId];
-	const NPuzzle board = node.board;
-	int stepSoFar = node.stepSoFar;
-	for (auto mv : board.getMove(board.getZero()))
-	{
-		NPuzzle next = board.applyMove(mv);
-		std::string key = next.flatten();
-		if (!closedSet.count(key))
+		ANode *current = openQueue.top();
+		openQueue.pop();
+		openMap.erase(current->hash());
+		if (closedSet.find(current->hash()) == closedSet.end())
 		{
-			numberOfStateSelected++;
-			maxNumberOfStateInMemory = std::max(maxNumberOfStateInMemory, openNodes.size());
-			auto hFunc = next.getHeuristicFunction();
-			int totalEstimation;
-			if (numberOfStateSelected > 999999)
-				totalEstimation = (next.*hFunc)();
-			else
-				totalEstimation = stepSoFar + 1 + (next.*hFunc)();
-			int nextIdx = allNodes.size();
-			allNodes.push_back({next, stepSoFar + 1, bestNodeId, mv});
-			openNodes.push({nextIdx, totalEstimation});
-		}
-	}
-}
-
-bool AStarSolver::solveWithAStar(const NPuzzle &puzzle)
-{
-	initializeSolver(puzzle);
-	while (!openNodes.empty())
-	{
-		int bestNodeId = openNodes.top().id;
-		openNodes.pop();
-		const std::string &key = allNodes[bestNodeId].board.flatten();
-		if (!closedSet.count(key))
-		{
-			closedSet.insert(key);
-			if (isSolved(bestNodeId))
+			closedSet[current->hash()] = current;
+			if (heuristic->calc(current->getPuzzle()) == 0)
+			{
+				endNode = current;
 				return true;
-			pushSolverNodes(bestNodeId);
+			}
+			pushSolverNodes(current);
 		}
 	}
 	return false;
 }
 
-std::vector<NPuzzle::Move> AStarSolver::getActionsPath()
+void AStarSolver::pushSolverNodes(ANode *current)
+{
+	NPuzzle board = current->getPuzzle();
+
+	for (auto mv : current->getPuzzle().getMove())
+	{
+		NPuzzle		next = board.applyMove(mv);
+		std::string k = next.getFlatten();
+		if (closedSet.find(k) != closedSet.end())
+			continue;
+		numberOfStateSelected++;
+		maxNumberOfStateInMemory = std::max(maxNumberOfStateInMemory, openQueue.size());
+		ANode *node;
+		if (openMap.find(k) == openMap.end())
+		{
+			node = new ANode(next, mv, current);
+			if (!opts.greedy)
+				node->setG(current->getG() + 1);
+			if (!opts.uniform)
+				node->setH(heuristic->calc(next));
+			openQueue.push(node);
+			openMap[k] = node;
+		}
+		else if (openMap[k]->getG() > current->getG() + 1)
+		{
+			node = openMap[k];
+			if (!opts.greedy)
+				node->setG(current->getG() + 1);
+			if (!opts.uniform)
+				node->setH(heuristic->calc(next));
+			node->setParent(current, mv);
+		}
+	}
+}
+
+std::vector<NPuzzle::Move> AStarSolver::getActionsPath() const
 {
 	std::vector<NPuzzle::Move> path;
-	if (goalIdx != -1)
+	ANode					  *curr = endNode;
+
+	while (curr && curr->getParent())
 	{
-		for (int at = goalIdx; at > 0; at = allNodes[at].parentIdx)
-		{
-			path.push_back(allNodes[at].moveFromParent);
-		}
-		std::reverse(path.begin(), path.end());
+		path.push_back(curr->getMove());
+		curr = curr->getParent();
 	}
+	std::reverse(path.begin(), path.end());
 	return path;
 }
 
-int AStarSolver::getNumberOfStateSelected()
+int AStarSolver::getNumberOfStateSelected() const
 {
-    return (numberOfStateSelected);
+	return numberOfStateSelected;
 }
 
-int AStarSolver::getMaxnumberOfStateInMemory()
+int AStarSolver::getMaxnumberOfStateInMemory() const
 {
-    return (maxNumberOfStateInMemory);
+	return maxNumberOfStateInMemory;
+}
+
+void AStarSolver::printInfo() const
+{
+	auto solution = getActionsPath();
+
+	std::cout << "===== Summary =====" << std::endl;
+	std::cout << "Solution moves (" << solution.size() << "):" << std::endl;
+	std::cout << "Number of state selected (" << getNumberOfStateSelected() << "):" << std::endl;
+	std::cout << "Max number of state in memory (" << getMaxnumberOfStateInMemory() << "):" << std::endl;
+	std::cout << "Solution:" << std::endl;
+}
+
+void AStarSolver::printSolution() const
+{
+	const char *const moveToString[] = {"LEFT", "RIGHT", "TOP", "BOTTOM"};
+	auto			  solution = getActionsPath();
+
+	if (solution.empty())
+		std::cout << "No solution found (this should never happen for a solvable puzzle)." << std::endl;
+	else
+	{
+		for (auto move : solution)
+			std::cout << moveToString[move] << " ";
+		std::cout << std::endl;
+	}
 }

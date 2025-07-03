@@ -1,53 +1,37 @@
 #pragma once
 
-#include "NPuzzle.hpp"
-#include <vector>
+#include <map>
 #include <queue>
 #include <unordered_map>
-#include <string>
-#include <algorithm>
-#include <unordered_set>
+#include <vector>
+
+#include "ANode.hpp"
+#include "Heuristic.hpp"
+#include "NPuzzle.hpp"
+#include "parser/arguments.hpp"
 
 class AStarSolver
 {
-private:
-	struct ANode;
-	struct PQItem;
-	std::vector<ANode> allNodes;
-	std::priority_queue<PQItem> openNodes;
-	std::unordered_set<std::string> closedSet;
-	int goalIdx = -1;
-	std::size_t numberOfStateSelected = 0;
-	std::size_t maxNumberOfStateInMemory = 0;
+  private:
+	std::priority_queue<ANodeQueue>			 openQueue;
+	std::map<std::string, ANode *>			 openMap;
+	std::unordered_map<std::string, ANode *> closedSet;
+	size_t									 numberOfStateSelected = 0;
+	size_t									 maxNumberOfStateInMemory = 0;
+	Heuristic								*heuristic;
+	options									 opts;
+	ANode									*endNode;
 
-	void initializeSolver(const NPuzzle &puzzle);
-    bool isSolved(int bestNodeId);
-    void pushSolverNodes(int bestNodeId);
+	void pushSolverNodes(ANode *current);
 
-public:
-	AStarSolver(/* args */);
+  public:
+	AStarSolver(const options &ops, NPuzzle start);
 	~AStarSolver();
 
-    bool solveWithAStar(const NPuzzle &start);
-	int getNumberOfStateSelected();
-	int getMaxnumberOfStateInMemory();
-    std::vector<NPuzzle::Move> getActionsPath();
-};
-
-struct AStarSolver::PQItem
-{
-	int id;
-	int totalEstimation;
-	bool operator<(PQItem const &o) const
-	{
-		return totalEstimation > o.totalEstimation;
-	}
-};
-
-struct AStarSolver::ANode
-{
-	NPuzzle board;
-	int stepSoFar;
-	int parentIdx;
-	NPuzzle::Move moveFromParent;
+	bool					   solve();
+	int						   getNumberOfStateSelected() const;
+	int						   getMaxnumberOfStateInMemory() const;
+	std::vector<NPuzzle::Move> getActionsPath() const;
+	void					   printSolution() const;
+	void					   printInfo() const;
 };
