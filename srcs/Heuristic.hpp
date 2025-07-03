@@ -29,10 +29,10 @@ class ManhattanDistance : public Heuristic
 	int calc(const NPuzzle &puzzle);
 };
 
-class MissplacedTitles : public Heuristic
+class MisplacedTitles : public Heuristic
 {
   public:
-	MissplacedTitles(int size);
+	MisplacedTitles(int size);
 	int calc(const NPuzzle &puzzle);
 };
 

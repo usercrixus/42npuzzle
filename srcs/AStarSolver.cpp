@@ -10,24 +10,21 @@ AStarSolver::AStarSolver(const options &opts, NPuzzle start) : opts(opts)
 	if (opts.heuristicMode == 0)
 		heuristic = new ManhattanDistance(start.getSize());
 	else if (opts.heuristicMode == 1)
-		heuristic = new MissplacedTitles(start.getSize());
+		heuristic = new MisplacedTitles(start.getSize());
 	else if (opts.heuristicMode == 2)
 		heuristic = new LinearConflicts(start.getSize());
 	else
 		throw std::runtime_error(
 			"invalid heuristicMode {0:Manhattan distance, 1: Missplaced titles, 3: Linear conflicts");
-	auto node = new ANode(start, heuristic->calc(start));
-	openQueue.push(node);
-	openMap[node->hash()] = node;
+	allNodes[start.getFlatten()] = ANode(start, heuristic->calc(start));
+	ANode *node_ptr = &allNodes[start.getFlatten()];
+	openQueue.push(node_ptr);
+	openSet.insert(node_ptr->hash());
 }
 
 AStarSolver::~AStarSolver()
 {
 	delete heuristic;
-	for (auto i : openMap)
-		delete i.second;
-	for (auto i : closedSet)
-		delete i.second;
 }
 
 bool AStarSolver::solve()
@@ -36,10 +33,12 @@ bool AStarSolver::solve()
 	{
 		ANode *current = openQueue.top();
 		openQueue.pop();
-		openMap.erase(current->hash());
+
+		openSet.erase(current->hash());
+
 		if (closedSet.find(current->hash()) == closedSet.end())
 		{
-			closedSet[current->hash()] = current;
+			closedSet.insert(current->hash());
 			if (heuristic->calc(current->getPuzzle()) == 0)
 			{
 				endNode = current;
@@ -63,25 +62,25 @@ void AStarSolver::pushSolverNodes(ANode *current)
 			continue;
 		numberOfStateSelected++;
 		maxNumberOfStateInMemory = std::max(maxNumberOfStateInMemory, openQueue.size());
-		ANode *node;
-		if (openMap.find(k) == openMap.end())
+		if (openSet.find(k) == openSet.end())
 		{
-			node = new ANode(next, mv, current);
+			allNodes[k] = ANode(next, mv, current);
+			ANode *node_ptr = &allNodes[k];
 			if (!opts.greedy)
-				node->setG(current->getG() + 1);
+				node_ptr->setG(current->getG() + 1);
 			if (!opts.uniform)
-				node->setH(heuristic->calc(next));
-			openQueue.push(node);
-			openMap[k] = node;
+				node_ptr->setH(heuristic->calc(next));
+			openQueue.push(node_ptr);
+			openSet.insert(k);
 		}
-		else if (openMap[k]->getG() > current->getG() + 1)
+		else if (allNodes.find(k)->second.getG() > current->getG() + 1)
 		{
-			node = openMap[k];
+			ANode *node_ptr = &allNodes[k];
 			if (!opts.greedy)
-				node->setG(current->getG() + 1);
+				node_ptr->setG(current->getG() + 1);
 			if (!opts.uniform)
-				node->setH(heuristic->calc(next));
-			node->setParent(current, mv);
+				node_ptr->setH(heuristic->calc(next));
+			node_ptr->setParent(current, mv);
 		}
 	}
 }

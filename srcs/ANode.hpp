@@ -15,6 +15,7 @@ class ANode
 	NPuzzle::Move moveFromParent = NPuzzle::NONE;
 
   public:
+	ANode() {};
 	ANode(NPuzzle puzzle, int h);
 	ANode(NPuzzle puzzle, NPuzzle::Move move, ANode *parent);
 	int				   f() const;

@@ -9,7 +9,7 @@
 #include "geometry/point.hpp"
 #include "parser/FileToVector.hpp"
 
-NPuzzle::NPuzzle(int size)
+NPuzzle::NPuzzle(int size): size(size)
 {
 	std::vector<int> buffer(size * size);
 	std::iota(buffer.begin(), buffer.end(), 0);

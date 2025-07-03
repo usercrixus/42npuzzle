@@ -1,6 +1,5 @@
 #include "ANode.hpp"
 #include "NPuzzle.hpp"
-#include <iostream>
 
 ANode::ANode(NPuzzle puzzle, int h) : puzzle(puzzle), h(h) {}
 
