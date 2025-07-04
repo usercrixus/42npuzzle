@@ -22,10 +22,10 @@ int main(int argc, char const *argv[])
 			puzzle.print();
 		}
 
-		if (puzzle.isSolvable())
+		AStarSolver s(opts, puzzle);
+		if (s.isSolvable(puzzle))
 			return std::cout << "This puzzle is unsolvable (odd inversion count)." << std::endl, 0;
 
-		AStarSolver s(opts, puzzle);
 		s.solve();
 		if (!opts.printMovesOnly)
 			s.printInfo();

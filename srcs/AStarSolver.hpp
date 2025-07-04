@@ -35,4 +35,5 @@ class AStarSolver
 	std::vector<NPuzzle::Move> getActionsPath() const;
 	void					   printSolution() const;
 	void					   printInfo() const;
+	bool					   isSolvable(const NPuzzle &start) const;
 };

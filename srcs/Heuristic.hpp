@@ -14,6 +14,7 @@ class Heuristic
 	virtual ~Heuristic();
 	virtual int calc(const NPuzzle &puzzle) = 0;
 	bool		isGoal(const NPuzzle &puzzle) const;
+	bool		isSolvable(const NPuzzle &puzzle) const;
 
   protected:
 	int				   size;

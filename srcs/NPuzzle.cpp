@@ -9,7 +9,7 @@
 #include "geometry/point.hpp"
 #include "parser/FileToVector.hpp"
 
-NPuzzle::NPuzzle(int size): size(size)
+NPuzzle::NPuzzle(int size) : size(size)
 {
 	std::vector<int> buffer(size * size);
 	std::iota(buffer.begin(), buffer.end(), 0);
@@ -69,36 +69,34 @@ void NPuzzle::print() const
 	std::cout << std::endl;
 }
 
-bool NPuzzle::isSolvable() const
-{
-	std::vector<int> flat;
-	int				 inv = 0;
-	int				 zeroRow = -1;
-
-	for (int row = 0; row < size; ++row)
-	{
-		for (int col = 0; col < size; ++col)
-		{
-			int v = puzzle[row][col];
-			if (v == 0)
-				zeroRow = row;
-			else
-				flat.push_back(v);
-		}
-	}
-
-	for (size_t i = 0; i < flat.size(); ++i)
-		for (size_t j = i + 1; j < flat.size(); ++j)
-			if (flat[i] > flat[j])
-				++inv;
-
-	if (size % 2 == 1)
-		return (inv % 2) == 0;
-	else if (inv % 2 == 0)
-		return zeroRow % 2 == 0;
-	else
-		return zeroRow % 2 == 1;
-}
+// bool NPuzzle::isSolvable() const
+// {
+// 	std::vector<int> flat;
+// 	int				 inv = 0;
+// 	int				 zeroRow = -1;
+//
+// 	for (int row = 0; row < size; ++row)
+// 	{
+// 		for (int col = 0; col < size; ++col)
+// 		{
+// 			int v = puzzle[row][col];
+// 			if (v == 0)
+// 				zeroRow = row;
+// 			else
+// 				flat.push_back(v);
+// 		}
+// 	}
+//
+// 	for (size_t i = 0; i < flat.size(); ++i)
+// 		for (size_t j = i + 1; j < flat.size(); ++j)
+// 			if (flat[i] > flat[j])
+// 				++inv;
+//
+// 	if (size % 2 == 1)
+// 		return (inv % 2) == 0;
+// 	else
+// 		return (inv + (size - zeroRow)) % 2 == 0;
+// }
 
 Point NPuzzle::getZero() const
 {

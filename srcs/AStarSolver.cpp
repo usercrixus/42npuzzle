@@ -1,5 +1,6 @@
 #include "AStarSolver.hpp"
 #include "ANode.hpp"
+#include "NPuzzle.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -16,6 +17,7 @@ AStarSolver::AStarSolver(const options &opts, NPuzzle start) : opts(opts)
 	else
 		throw std::runtime_error(
 			"invalid heuristicMode {0:Manhattan distance, 1: Missplaced titles, 3: Linear conflicts");
+
 	allNodes[start.getFlatten()] = ANode(start, heuristic->calc(start));
 	ANode *node_ptr = &allNodes[start.getFlatten()];
 	openQueue.push(node_ptr);
@@ -25,6 +27,11 @@ AStarSolver::AStarSolver(const options &opts, NPuzzle start) : opts(opts)
 AStarSolver::~AStarSolver()
 {
 	delete heuristic;
+}
+
+bool AStarSolver::isSolvable(const NPuzzle &start) const
+{
+	return heuristic->isSolvable(start);
 }
 
 bool AStarSolver::solve()

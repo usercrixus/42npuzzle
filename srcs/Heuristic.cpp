@@ -2,6 +2,7 @@
 #include "geometry/point.hpp"
 
 #include <cmath>
+#include <iostream>
 
 Heuristic::Heuristic(int s) : size(s), goal(s)
 {
@@ -19,6 +20,40 @@ Heuristic::Heuristic(int s) : size(s), goal(s)
 }
 
 Heuristic::~Heuristic() {}
+
+bool Heuristic::isSolvable(const NPuzzle &puzzle) const
+{
+	std::vector<int> flat;
+	std::vector<int> flat_goal;
+	int				 inv = 0;
+	int				 zeroRow = -1;
+
+	std::cout << size << std::endl;
+	for (int row = 0; row < size; ++row)
+	{
+		for (int col = 0; col < size; ++col)
+		{
+			int v = puzzle.getPuzzle()[row][col];
+			if (v == 0)
+				zeroRow = row + 1;
+			else
+			{
+				flat.push_back(v);
+				flat_goal.push_back(goal.getPuzzle()[row][col]);
+			}
+		}
+	}
+
+	for (size_t i = 0; i < flat.size(); ++i)
+		for (size_t j = i + 1; j < flat.size(); ++j)
+			if (flat[i] > flat_goal[j])
+				++inv;
+
+	if (size % 2 == 1)
+		return (inv % 2) == 0;
+	else
+		return (inv + (size - zeroRow)) % 2 == 0;
+}
 
 bool Heuristic::isGoal(const NPuzzle &puzzle) const
 {
