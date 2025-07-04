@@ -17,6 +17,11 @@ const std::string &ANode::hash() const
 	return puzzle.getFlatten();
 }
 
+bool ANode::getValid() const
+{
+	return valid;
+}
+
 const NPuzzle &ANode::getPuzzle() const
 {
 	return puzzle;
@@ -32,9 +37,19 @@ int ANode::getG() const
 	return g;
 }
 
+int ANode::getH() const
+{
+	return h;
+}
+
 ANode *ANode::getParent() const
 {
 	return parent;
+}
+
+void ANode::setInvalid()
+{
+	valid = false;
 }
 
 void ANode::setH(int h)

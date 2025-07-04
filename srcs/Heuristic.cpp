@@ -5,7 +5,6 @@
 
 Heuristic::Heuristic(int s) : size(s), goal(s)
 {
-
 	int col = 0, row = 0;
 	int dir_row = 0, dir_col = 1;
 	int end = size - 1, start = 0;
