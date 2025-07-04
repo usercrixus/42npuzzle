@@ -64,39 +64,25 @@ void AStarSolver::pushSolverNodes(ANode *current)
 			continue;
 		ANode *node_ptr;
 		if (openSet.find(key) == openSet.end())
-		{
-			allNodes[key] = ANode(next, mv, current);
-			node_ptr = &allNodes[key];
-
-			if (!opts.greedy)
-				node_ptr->setG(current->getG() + 1);
-			if (!opts.uniform)
-				node_ptr->setH(heuristic->calc(next));
-
-			openQueue.push(node_ptr);
 			openSet.insert(key);
-
-			numberOfStateSelected++;
-			maxNumberOfStateInMemory = std::max(maxNumberOfStateInMemory, openQueue.size());
-		}
 		else if (allNodes[key].getG() > current->getG() + 1)
-		{
 			allNodes[key].setInvalid();
+		else
+			continue;
 
-			allNodes[key] = ANode(next, mv, current);
-			node_ptr = &allNodes[key];
+		allNodes[key] = ANode(next, mv, current);
+		node_ptr = &allNodes[key];
 
-			if (!opts.greedy)
-				node_ptr->setG(current->getG() + 1);
-			if (!opts.uniform)
-				node_ptr->setH(heuristic->calc(next));
+		if (!opts.greedy)
+			node_ptr->setG(current->getG() + 1);
+		if (!opts.uniform)
+			node_ptr->setH(heuristic->calc(next));
 
-			openQueue.push(node_ptr);
-			// openSet.insert(key);
+		openQueue.push(node_ptr);
+		openSet.insert(key);
 
-			numberOfStateSelected++;
-			maxNumberOfStateInMemory = std::max(maxNumberOfStateInMemory, openQueue.size());
-		}
+		numberOfStateSelected++;
+		maxNumberOfStateInMemory = std::max(maxNumberOfStateInMemory, openQueue.size());
 	}
 }
 
